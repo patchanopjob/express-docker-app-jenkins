@@ -1,13 +1,13 @@
 pipeline {
     agent any
 
-    tools {
-        nodejs 'nodejs'
+    options { 
+        skipDefaultCheckout(true)  
     }
 
     environment {
         DOCKER_HUB_CREDENTIALS_ID = 'dockerhub-cred'
-        DOCKER_REPO               = "patchanop13/express-docker-app-jenkins"
+        DOCKER_REPO               = "iamsamitdev/express-docker-app-jenkins"
         APP_NAME                  = "express-docker-app-jenkins"
     }
 
@@ -23,7 +23,7 @@ pipeline {
         stage('Install & Test') {
             steps {
                 sh '''
-                    npm install
+                    if [ -f package-lock.json ]; then npm ci; else npm install; fi
                     npm test
                 '''
             }
@@ -77,36 +77,18 @@ pipeline {
                 """
             }
         }
-
-        // Stage 7: Deploy ไปยังเครื่อง remote server (ถ้ามี)
-        // ต้องตั้งค่า SSH Key และอนุญาตให้ Jenkins เข้าถึง server
-        // stage('Deploy to Server') {
-        //     steps {
-        //         script {
-        //             def isWindows = isUnix() ? false : true
-        //             echo "Deploying to remote server..."
-        //             if (isWindows) {
-        //                 bat """
-        //                     ssh -o StrictHostKeyChecking=no user@your-server-ip \\
-        //                     'docker pull ${DOCKER_REPO}:latest && \\
-        //                     docker stop ${APP_NAME} || echo ignore && \\
-        //                     docker rm ${APP_NAME} || echo ignore && \\
-        //                     docker run -d --name ${APP_NAME} -p 3000:3000 ${DOCKER_REPO}:latest && \\
-        //                     docker ps --filter name=${APP_NAME} --format "table {{.Names}}\t{{.Image}}\t{{.Status}}"'
-        //                 """
-        //             } else {
-        //                 sh """
-        //                     ssh -o StrictHostKeyChecking=no user@your-server-ip \\
-        //                     'docker pull ${DOCKER_REPO}:latest && \\
-        //                     docker stop ${APP_NAME} || true && \\
-        //                     docker rm ${APP_NAME} || true && \\
-        //                     docker run -d --name ${APP_NAME} -p 3000:3000 ${DOCKER_REPO}:latest && \\
-        //                     docker ps --filter name=${APP_NAME} --format "table {{.Names}}\t{{.Image}}\t{{.Status}}"'
-        //                 """
-        //             }
-        //         }
-        //     }
-        // }
-
     }
+
+    post {
+        always {
+            echo "Pipeline finished with status: ${currentBuild.currentResult}"
+        }
+        success {
+            echo "Pipeline succeeded!"
+        }
+        failure {
+            echo "Pipeline failed!"
+        }
+    }
+
 }
