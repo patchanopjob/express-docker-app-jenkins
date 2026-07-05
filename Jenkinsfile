@@ -3,6 +3,10 @@ pipeline {
     // ใช้ any agent เพื่อหลีกเลี่ยงปัญหา Docker path mounting บน Windows
     agent any
 
+    tools {
+        // ใช้ Node.js เวอร์ชัน 22 สำหรับการรัน npm install และ npm test
+        nodejs "nodejs"
+    }
     // กำหนด environment variables
     environment {
         // ใช้ค่าเป็น "credentialsId" ของ Jenkins โดยตรงสำหรับ docker.withRegistry
