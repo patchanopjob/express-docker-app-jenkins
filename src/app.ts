@@ -22,4 +22,13 @@ app.get("/api/health", (_: Request, res: Response) => {
   });
 });
 
+app.get("/api/users", (_: Request, res: Response) => {
+  res.json({
+    users: [
+      { id: 1, name: "John Doe" },
+      { id: 2, name: "Jane Doe" },
+    ],
+  });
+});
+
 app.listen(port, () => console.log(`Application is running on port ${port}`));
